@@ -68,12 +68,16 @@ Config {
     , font = "xft:Hack Nerd Font:style=Regular:pixelsize=16:antialias=true:hinting=light"
     , additionalFonts = [ "xft:Font Awesome 5 Free:style=Solid:pixelsize=16:antialias=true"
                         ]
+    , border = NoBorder
+    , bgColor = "#1D3030"
+    , fgColor = "#D0D0D0"
+    , alpha = 245
     ...
     , commands = [ Run UnsafeStdinReader
                    , Run Com "cat" ["/tmp/weather"] "weather" 100
                    ...
                  ]
-    , template = "...%UnsafeStdinReader%     <action=`~/.scripts/weather-report.py > /tmp/weather`>%weather%</action>  ..."
+    , template = "... %UnsafeStdinReader%     <action=`~/.scripts/weather-report.py > /tmp/weather`>%weather%</action>  ..."
     }
 ```
 
@@ -81,7 +85,7 @@ Config {
 
 ### `.xprofile` initiation line
 
-Instead of simple `cat "____N/A____" > /tmp/weather` I use my script. But you can simplify setup by just use command above.
+Instead of simple `cat "____N/A____" > /tmp/weather` I use my script because it also gives additional information about error. 
 
 ```sh
 ~/.scripts/weather-xmobar.py > /tmp/weather &
