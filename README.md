@@ -4,7 +4,9 @@ Here I share my small script for making weather report in the Xmobar.
 
 ![screenshot](screenshot/screenshot.png)
 
-![screenshot zoom](screenshot/screenshot1.png)
+![screenshot day](screenshot/screenshot_day.png)
+
+![screenshot night](screenshot/screenshot_night.png)
 
 String format is: `<weather icon> <temperature in °C>(<feel like temperature in °C>)°C <wind direction>:<wind speed in meters per second>m/s <air humidity %>%`.
 And each value is wrapped in its own color with `<fc="color"> item </fc>` command for Xmobar.
