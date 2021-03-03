@@ -7,6 +7,20 @@ import requests
 import json
 import datetime
 
+# color map
+# color can be defined as a word or HEX code #RGB
+weather_colors = {
+    "weather_day": "#FFFF00",
+    "weather_night": "#1E90FF",
+    "unknown": "white",
+    "realTemp": "green",
+    "feelsLikeTemp": "green",
+    "windDirection": "white",
+    "windSpeed": "#FF1493",
+    "humidity": "cyan",
+    "error": "yellow",
+}
+
 # mapping standard wind rose into arrows
 wind_directions = {
     "S": "",
@@ -218,20 +232,20 @@ def wrap_xmobar_color(color: str, data: str) -> str:
     return '<fc=' + color + '>' + data + '</fc>'
 
 # function to assemble weather reporting string for xmobar
-def make_xmobar_weather_string(weather_map) -> str:
+def make_xmobar_weather_string(weather_map, color_map) -> str:
     days_time = day_or_night(weather_map)
     report_string = ''
     if days_time == 'day':
-        report_string += wrap_xmobar_color('#FFFF00',return_icon(weather_map)) + ' '
+        report_string += wrap_xmobar_color(color_map['weather_day'],return_icon(weather_map)) + ' '
     elif days_time == 'night':
-        report_string += wrap_xmobar_color('#1E90FF',return_icon(weather_map)) + ' '
+        report_string += wrap_xmobar_color(color_map['weather_night'],return_icon(weather_map)) + ' '
     else:
-        report_string += wrap_xmobar_color('white',return_icon(weather_map)) + ' '
-    report_string += wrap_xmobar_color('green',weather_map['temp_C']) + '('
-    report_string += wrap_xmobar_color('green',weather_map['FeelsLikeC']) + ')°C '
-    report_string += wrap_xmobar_color('white',wind_directions.get(weather_map["winddir16Point"],'')) + ':'
-    report_string += wrap_xmobar_color('#FF1493',str(int(weather_map['windspeedKmph']) * 10 // 36)) + 'm/s '
-    report_string += wrap_xmobar_color('cyan','' + weather_map['humidity'] + '%')
+        report_string += wrap_xmobar_color(color_map['unknown'],return_icon(weather_map)) + ' '
+    report_string += wrap_xmobar_color(color_map['realTemp'],weather_map['temp_C']) + '('
+    report_string += wrap_xmobar_color(color_map['feelsLikeTemp'],weather_map['FeelsLikeC']) + ')°C '
+    report_string += wrap_xmobar_color(color_map['windDirection'],wind_directions.get(weather_map["winddir16Point"],'')) + ':'
+    report_string += wrap_xmobar_color(color_map['windSpeed'],str(int(weather_map['windspeedKmph']) * 10 // 36)) + 'm/s '
+    report_string += wrap_xmobar_color(color_map['humidity'],'' + weather_map['humidity'] + '%')
     return report_string
 
 # main function to put everything together
@@ -256,11 +270,11 @@ def main():
             current_weather_map[condition] = response['current_condition'][0][condition]
         current_weather_map['sunrise'] = convert24(response['weather'][0]['astronomy'][0]['sunrise'])
         current_weather_map['sunset'] = convert24(response['weather'][0]['astronomy'][0]['sunset'])
-        weather_report = make_xmobar_weather_string(current_weather_map)
+        weather_report = make_xmobar_weather_string(current_weather_map, weather_colors)
     except requests.RequestException:
-        weather_report = wrap_xmobar_color("yellow","N/A, Connection issue")
+        weather_report = wrap_xmobar_color(weather_colors['error'],'N/A, Connection issue')
     except json.decoder.JSONDecodeError:
-        weather_report = wrap_xmobar_color("yellow","N/A, JSON issue")
+        weather_report = wrap_xmobar_color(weather_colors['error'],'N/A, JSON issue')
     print(weather_report)
 
 main()
