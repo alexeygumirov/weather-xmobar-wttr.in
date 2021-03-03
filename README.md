@@ -28,6 +28,8 @@ And I decided to write my own script as a workaround.  Script is in Python becau
 ## Prerequisites
 
 - Running Xmobar (of course, this assumes you most probably use Xmonad window manager)
+- Installed one of [Nerd Fonts](https://nerdfonts.com) for use in the Xmobar.
+    - I use **Hack Nerd Font**.
 - `cron` for regular weather updates
 - `python3` has to be installed
 
