@@ -213,7 +213,7 @@ def day_or_night(weather_map) -> str:
     elif current_time_int < sunset_int:
         return 'day'
     else:
-        return 'unknown'
+        return 'night'
 
 # Function to return night or day icon for a given weather code
 # As input function takes map which must contain values for:
