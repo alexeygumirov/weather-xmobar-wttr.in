@@ -188,9 +188,8 @@ def convert24(str1) -> str: # input format must be %I:%M AM/PM (no seconds)
         # add 12 to hours and remove PM
         return str(int(str1[:2]) + 12) + str1[2:5]
 
-# Function to return night or day icon for a given weather code
-# As input function takes map which must contain values for:
-# 'sunrise', 'sunset' and 'weatherCode'
+# Function to determine if it is day or night
+# using current time and information about sunrise and sunset
 def day_or_night(weather_map) -> str:
     current_time_int = int(datetime.datetime.now().strftime("%H%M"))
     sunrise_int = int(weather_map['sunrise'][:2] + weather_map['sunrise'][3:5])
@@ -202,6 +201,9 @@ def day_or_night(weather_map) -> str:
     else:
         return 'unknown'
 
+# Function to return night or day icon for a given weather code
+# As input function takes map which must contain values for:
+# 'sunrise', 'sunset' and 'weatherCode'
 def return_icon(weather_map) -> str:
     days_time = day_or_night(weather_map)
     if days_time == 'night':
@@ -232,6 +234,7 @@ def make_xmobar_weather_string(weather_map) -> str:
     report_string += wrap_xmobar_color('cyan','' + weather_map['humidity'] + '%')
     return report_string
 
+# main function to put everything together
 def main():
     weather_URL = 'http://wttr.in/'
     city = 'Bonn'
