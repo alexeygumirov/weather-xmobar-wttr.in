@@ -258,9 +258,9 @@ def main():
         current_weather_map['sunset'] = convert24(response['weather'][0]['astronomy'][0]['sunset'])
         weather_report = make_xmobar_weather_string(current_weather_map)
     except requests.RequestException:
-        weather_report = wrap_xmobar_color("yellow","____N/A____")
+        weather_report = wrap_xmobar_color("yellow","N/A, Connection issue")
     except json.decoder.JSONDecodeError:
-        weather_report = wrap_xmobar_color("yellow","____N/A____")
+        weather_report = wrap_xmobar_color("yellow","N/A, JSON issue")
     print(weather_report)
 
 main()
