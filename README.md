@@ -88,7 +88,14 @@ Config {
 Instead of simple `cat "____N/A____" > /tmp/weather` I use my script because it also gives additional information about error. 
 
 ```sh
-~/.scripts/weather-xmobar.py > /tmp/weather &
+weather_update(){
+    echo "" > /tmp/weather
+    sleep 120
+    ~/.scripts/weather-xmobar.py > /tmp/wetter
+}
+#...
+weather_update &
+#...
 ```
 
 ### The script itself
