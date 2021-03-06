@@ -90,7 +90,7 @@ Instead of simple `cat "____N/A____" > /tmp/weather` I use my script because it 
 ```sh
 weather_update(){
     echo "" > /tmp/weather
-    sleep 120
+    sleep 120 # This allows WiFi connection to be established first
     ~/.scripts/weather-xmobar.py > /tmp/wetter
 }
 #...
