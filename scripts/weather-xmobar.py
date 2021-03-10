@@ -21,6 +21,22 @@ weather_colors = {
     "error": "yellow",
 }
 
+wind_colors = {
+    1: "#009FFF",
+    5: "#67CEF7",
+    11: "#7BCDBF",
+    19: "#04E100",
+    28: "#66FE3A",
+    38: "#CAFF33",
+    49: "#E2FE97",
+    61: "#FEFE0A",
+    74: "#F9DD56",
+    88: "#FFC100",
+    102: "#FF9962",
+    117: "#FF6300",
+    1000: "#CF3104"
+}
+
 # mapping standard wind rose into arrows
 wind_directions = {
     "S": "",
@@ -215,6 +231,12 @@ def day_or_night(weather_map) -> str:
     else:
         return 'night'
 
+# Function returns wind color depending on Wind speed (km/h)
+def give_wind_color(wind_colors_map, wind_speed: int) -> str:
+    for key in wind_colors_map.keys():
+        if wind_speed <= key:
+            return wind_colors_map.get(key,"#FF1493")
+
 # Function to return night or day icon for a given weather code
 # As input function takes map which must contain values for:
 # 'sunrise', 'sunset' and 'weatherCode'
@@ -244,7 +266,7 @@ def make_xmobar_weather_string(weather_map, color_map) -> str:
     report_string += wrap_xmobar_color(color_map['realTemp'],weather_map['temp_C']) + '('
     report_string += wrap_xmobar_color(color_map['feelsLikeTemp'],weather_map['FeelsLikeC']) + ')°C '
     report_string += wrap_xmobar_color(color_map['windDirection'],wind_directions.get(weather_map["winddir16Point"],'')) + ':'
-    report_string += wrap_xmobar_color(color_map['windSpeed'],str(int(weather_map['windspeedKmph']) * 10 // 36)) + 'm/s '
+    report_string += wrap_xmobar_color(give_wind_color(wind_colors,int(weather_map['windspeedKmph'])),str(int(weather_map['windspeedKmph']) * 10 // 36)) + 'm/s '
     report_string += wrap_xmobar_color(color_map['humidity'],'' + weather_map['humidity'] + '%')
     return report_string
 
