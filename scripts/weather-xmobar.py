@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/bin/python
 # my script for getting weather stats with the Nerd Font icons
 # Data is pulled from the wttr.in in the JSON format
 
@@ -57,7 +57,7 @@ wind_directions = {
     "ENE": ""
 }
 
-# mapping of weather codes into day icons 
+# mapping of weather codes into day icons
 # I use icons from the NerdFont
 weather_icons_night = {
     # Sunny
@@ -202,7 +202,7 @@ weather_icons_day = {
 }
 
 # Function to convert %I:%M AM/PM format of time into 24 hours
-def convert24(str1) -> str: # input format must be %I:%M AM/PM (no seconds)
+def convert24(str1: str) -> str: # input format must be %I:%M AM/PM (no seconds)
     # Checking if last two elements of time
     # is AM and first two elements are 12
     if str1[-2:] == "AM" and str1[:2] == "12":
@@ -220,7 +220,7 @@ def convert24(str1) -> str: # input format must be %I:%M AM/PM (no seconds)
 
 # Function to determine if it is day or night
 # using current time and information about sunrise and sunset
-def day_or_night(weather_map) -> str:
+def day_or_night(weather_map: dict) -> str:
     current_time_int = int(datetime.datetime.now().strftime("%H%M"))
     sunrise_int = int(weather_map['sunrise'][:2] + weather_map['sunrise'][3:5])
     sunset_int = int(weather_map['sunset'][:2] + weather_map['sunset'][3:5])
@@ -232,15 +232,25 @@ def day_or_night(weather_map) -> str:
         return 'night'
 
 # Function returns wind color depending on Wind speed (km/h)
-def give_wind_color(wind_colors_map, wind_speed: int) -> str:
+def give_wind_color(wind_colors_map: dict, wind_speed: int) -> str:
     for key in wind_colors_map.keys():
         if wind_speed <= key:
             return wind_colors_map.get(key,"#FF1493")
 
+# Function returns wind gust value for a given time
+# Returs in the km/h (to be used with a give_wind_color function)
+def give_wind_gust(full_weather_map: dict) -> str:
+    hourly_index = int(datetime.datetime.now().strftime("%H%M")) // 300
+    try:
+        return full_weather_map['weather'][0]['hourly'][hourly_index]['WindGustKmph']
+    except:
+        return "0"
+
+
 # Function to return night or day icon for a given weather code
 # As input function takes map which must contain values for:
 # 'sunrise', 'sunset' and 'weatherCode'
-def return_icon(weather_map) -> str:
+def return_icon(weather_map: dict) -> str:
     days_time = day_or_night(weather_map)
     if days_time == 'night':
         return weather_icons_night.get(weather_map['weatherCode'],' ')
@@ -254,21 +264,28 @@ def wrap_xmobar_color(color: str, data: str) -> str:
     return '<fc=' + color + '>' + data + '</fc>'
 
 # function to assemble weather reporting string for xmobar
-def make_xmobar_weather_string(weather_map, color_map) -> str:
+def make_xmobar_weather_string(weather_map: dict, color_map: dict, wind_color_map: dict) -> str:
     days_time = day_or_night(weather_map)
     report_string = ''
-    if days_time == 'day':
-        report_string += wrap_xmobar_color(color_map['weather_day'],return_icon(weather_map)) + ' '
-    elif days_time == 'night':
-        report_string += wrap_xmobar_color(color_map['weather_night'],return_icon(weather_map)) + ' '
-    else:
-        report_string += wrap_xmobar_color(color_map['unknown'],return_icon(weather_map)) + ' '
-    report_string += wrap_xmobar_color(color_map['realTemp'],weather_map['temp_C']) + '('
-    report_string += wrap_xmobar_color(color_map['feelsLikeTemp'],weather_map['FeelsLikeC']) + ')°C '
-    report_string += wrap_xmobar_color(color_map['windDirection'],wind_directions.get(weather_map["winddir16Point"],'')) + ':'
-    report_string += wrap_xmobar_color(give_wind_color(wind_colors,int(weather_map['windspeedKmph'])),str(int(weather_map['windspeedKmph']) * 10 // 36)) + 'm/s '
-    report_string += wrap_xmobar_color(color_map['humidity'],'' + weather_map['humidity'] + '%')
-    return report_string
+    try:
+        if days_time == 'day':
+            report_string += wrap_xmobar_color(color_map['weather_day'],return_icon(weather_map)) + ' '
+        elif days_time == 'night':
+            report_string += wrap_xmobar_color(color_map['weather_night'],return_icon(weather_map)) + ' '
+        else:
+            report_string += wrap_xmobar_color(color_map['unknown'],return_icon(weather_map)) + ' '
+        report_string += wrap_xmobar_color(color_map['realTemp'],weather_map['temp_C']) + '('
+        report_string += wrap_xmobar_color(color_map['feelsLikeTemp'],weather_map['FeelsLikeC']) + ')°C '
+        report_string += wrap_xmobar_color(color_map['windDirection'],wind_directions.get(weather_map["winddir16Point"],'')) + ':'
+        if int(weather_map['windspeedMs']) < int(weather_map['windgustMs']):
+            report_string += wrap_xmobar_color(give_wind_color(wind_color_map,int(weather_map['windspeedKmph'])),weather_map['windspeedMs']) + '-'
+            report_string += wrap_xmobar_color(give_wind_color(wind_color_map,int(weather_map['windgustKmph'])),weather_map['windgustMs']) + 'm/s '
+        else:
+            report_string += wrap_xmobar_color(give_wind_color(wind_color_map,int(weather_map['windspeedKmph'])),weather_map['windspeedMs']) + 'm/s '
+        report_string += wrap_xmobar_color(color_map['humidity'],'' + weather_map['humidity'] + '%')
+        return report_string
+    except:
+        return wrap_xmobar_color(color_map['error'],'N/A, Report Func Error')
 
 # main function to put everything together
 def main():
@@ -282,7 +299,7 @@ def main():
     # in the case of errors (either connectivity or JSON parsing)
     # I just put "N/A" message in a yellow color
     try:
-        response = requests.get(weather_URL + city + '\?format=j1').json()
+        response = requests.get(weather_URL + city + '?format=j1').json()
         for temperature in current_weather_temperature:
             if '-' in response['current_condition'][0][temperature]:
                 current_weather_map[temperature] = response['current_condition'][0][temperature]
@@ -292,7 +309,10 @@ def main():
             current_weather_map[condition] = response['current_condition'][0][condition]
         current_weather_map['sunrise'] = convert24(response['weather'][0]['astronomy'][0]['sunrise'])
         current_weather_map['sunset'] = convert24(response['weather'][0]['astronomy'][0]['sunset'])
-        weather_report = make_xmobar_weather_string(current_weather_map, weather_colors)
+        current_weather_map['windgustKmph'] = give_wind_gust(response)
+        current_weather_map['windspeedMs'] = str(int(current_weather_map['windspeedKmph']) * 10 // 36)
+        current_weather_map['windgustMs'] = str(int(current_weather_map['windgustKmph']) * 10 // 36)
+        weather_report = make_xmobar_weather_string(current_weather_map, weather_colors, wind_colors)
     except requests.RequestException:
         weather_report = wrap_xmobar_color(weather_colors['error'],'N/A, Connection issue')
     except json.decoder.JSONDecodeError:
