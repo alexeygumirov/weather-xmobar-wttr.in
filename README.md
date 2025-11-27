@@ -1,3 +1,13 @@
+# 👋 THIS REPOSITORY HAS MOVED! 👋
+
+**This repository is no longer actively maintained on GitHub. It has been archived and is read-only.**
+
+Please update your bookmarks and remotes to the new home on Codeberg:
+
+➡️ **[https://codeberg.org/alexeygumirov/weather-xmobar-wttr.in](https://codeberg.org/alexeygumirov/weather-xmobar-wttr.in)** ⬅️
+
+Thank you for your understanding and continued support!
+
 # Weather status for Xmobar
 
 Here I share my small script for making weather report in the Xmobar.
